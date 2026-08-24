@@ -12,7 +12,8 @@ Como a extensão não está nas lojas oficiais, como Chrome Web Store ou Microso
 
 1. **Baixe o projeto:**
   
-  - Clique no botão verde **"Code"** no topo desta página e selecione **"Download ZIP"**.
+  - Acesse a seção Releases deste repositório e baixe o arquivo renovacao-livros-bu-v1.2.0.zip da versão mais recente.
+
 2. **Extraia os arquivos:**  
   Descompacte o arquivo `.zip` baixado em uma pasta de sua preferência no computador.
   
