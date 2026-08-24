@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Renovação de livros BU</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; width: 330px; background: #f5f7fa; color: #333; }
+
+    header {
+      background: linear-gradient(135deg, #003087, #0057b8);
+      color: white; padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    header .logo { font-size: 20px; }
+    header h1 { font-size: 14px; font-weight: 700; }
+    header p  { font-size: 11px; opacity: 0.8; }
+
+    .tabs { display: flex; background: white; border-bottom: 1px solid #e0e0e0; }
+    .tab-btn {
+      flex: 1; padding: 9px 4px; font-size: 12px; font-weight: 600;
+      border: none; background: none; cursor: pointer; color: #888;
+      border-bottom: 2px solid transparent; transition: all 0.15s;
+    }
+    .tab-btn.active { color: #003087; border-bottom-color: #003087; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .section { padding: 14px 16px; border-bottom: 1px solid #e0e0e0; background: white; }
+    .section:last-child { border-bottom: none; }
+
+    label {
+      display: block; font-size: 11px; font-weight: 600; color: #666;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="password"], input[type="number"] {
+      width: 100%; padding: 8px 10px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 13px; background: #fafafa;
+    }
+    input:focus { outline: none; border-color: #0057b8; background: white; }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 36px; }
+    .toggle-pass {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: #888; font-size: 14px;
+    }
+
+    .save-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+    .save-row input[type="checkbox"] { cursor: pointer; }
+    .save-row label { text-transform: none; font-size: 12px; color: #555; margin: 0; cursor: pointer; }
+
+    .btn-primary {
+      width: 100%; padding: 10px;
+      background: linear-gradient(135deg, #003087, #0057b8);
+      color: white; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 12px; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      width: 100%; padding: 8px; background: white; color: #0057b8;
+      border: 1px solid #0057b8; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px;
+    }
+    .btn-secondary:hover { background: #f0f5ff; }
+
+    #status-box {
+      margin-top: 10px; padding: 10px 12px; border-radius: 6px;
+      font-size: 12px; line-height: 1.5; display: none;
+    }
+    #status-box.info    { background:#e8f0fe; color:#1a56db; border-left:3px solid #1a56db; }
+    #status-box.success { background:#e6f4ea; color:#1e7e34; border-left:3px solid #28a745; }
+    #status-box.error   { background:#fde8e8; color:#c62828; border-left:3px solid #e53935; }
+
+    /* Contagem regressiva */
+    .countdown-box {
+      background: #e8f0fe; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+    }
+    .countdown-box.urgent { background: #fde8e8; }
+    .cd-label { font-size: 11px; font-weight: 600; color: #1a56db; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .countdown-box.urgent .cd-label { color: #c62828; }
+    .cd-time  { font-size: 22px; font-weight: 700; color: #003087; line-height: 1; }
+    .countdown-box.urgent .cd-time  { color: #c62828; }
+    .cd-sub   { font-size: 11px; color: #555; margin-top: 4px; }
+
+    .cd-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .cd-actions button {
+      flex: 1; padding: 6px 8px; font-size: 12px; font-weight: 600;
+      border-radius: 6px; cursor: pointer; border: 1px solid; background: white;
+    }
+    .cd-edit   { color: #0057b8; border-color: #0057b8; }
+    .cd-edit:hover { background: #f0f5ff; }
+    .cd-cancel { color: #c62828; border-color: #e53935; }
+    .cd-cancel:hover { background: #fff5f5; }
+
+    /* Formulário de agendamento */
+    .schedule-form { display: none; }
+    .schedule-form.visible { display: block; }
+
+    .preset-btns { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .preset-btn {
+      padding: 5px 10px; font-size: 12px; font-weight: 600; border-radius: 20px;
+      cursor: pointer; background: #f0f5ff; color: #0057b8;
+      border: 1px solid #b3cfee; transition: all 0.15s;
+    }
+    .preset-btn:hover, .preset-btn.sel { background: #0057b8; color: white; border-color: #0057b8; }
+
+    .interval-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .interval-row input[type="number"] { width: 70px; text-align: center; }
+    .interval-row span { font-size: 13px; color: #555; }
+
+    /* Histórico */
+    .history-list { list-style: none; }
+    .history-item {
+      padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .history-dot.ok  { background: #28a745; }
+    .history-dot.err { background: #e53935; }
+    .history-msg  { font-size: 13px; color: #333; }
+    .history-date { font-size: 11px; color: #888; margin-top: 2px; }
+    .empty-msg { font-size: 13px; color: #aaa; text-align: center; padding: 20px 0; }
+
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: white;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer { padding: 7px 16px; text-align: center; font-size: 10px; color: #aaa; background: #f5f7fa; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📚</div>
+  <div>
+    <h1>Renovação de livros BU</h1>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="renovar">Renovar</button>
+  <button class="tab-btn" data-tab="agenda">Agendamento</button>
+  <button class="tab-btn" data-tab="historico">Histórico</button>
+</div>
+
+<!-- Renovar -->
+<div class="panel active" id="panel-renovar">
+  <div class="section">
+    <label>Matrícula</label>
+    <input type="text" id="username" placeholder="Número da matrícula" autocomplete="username"/>
+    <div style="margin-top:10px">
+      <label>Senha</label>
+      <div class="password-wrap">
+        <input type="password" id="password" placeholder="Senha" autocomplete="current-password"/>
+        <button class="toggle-pass" id="toggle-pass">👁</button>
+      </div>
+    </div>
+    <div class="save-row">
+      <input type="checkbox" id="save-credentials"/>
+      <label for="save-credentials">Salvar credenciais localmente</label>
+    </div>
+    <button class="btn-primary" id="btn-renovar">
+      <span id="btn-icon">🔄</span>
+      <span id="btn-text">Renovar Todos os Livros</span>
+    </button>
+    <button class="btn-secondary" id="btn-limpar" style="display:none">🗑 Limpar credenciais salvas</button>
+    <div id="status-box"></div>
+  </div>
+</div>
+
+<!-- Agendamento -->
+<div class="panel" id="panel-agenda">
+  <div class="section">
+
+    <div id="countdown-wrap" style="display:none">
+      <div class="countdown-box" id="countdown-box">
+        <div class="cd-label">Próxima renovação em</div>
+        <div class="cd-time" id="cd-time">—</div>
+        <div class="cd-sub" id="cd-sub">—</div>
+      </div>
+      <div class="cd-actions">
+        <button class="cd-edit" id="cd-edit-btn">✏️ Editar</button>
+        <button class="cd-cancel" id="cd-cancel-btn">✕ Cancelar</button>
+      </div>
+    </div>
+
+    <div class="schedule-form" id="schedule-form">
+      <label>Lembrar de renovar a cada</label>
+      <div class="preset-btns">
+        <button class="preset-btn" data-days="7">7 dias</button>
+        <button class="preset-btn sel" data-days="10">10 dias</button>
+        <button class="preset-btn" data-days="14">14 dias</button>
+        <button class="preset-btn" data-days="20">20 dias</button>
+      </div>
+      <div class="interval-row">
+        <input type="number" id="interval-days" value="10" min="1" max="29"/>
+        <span>dias após a última renovação</span>
+      </div>
+      <p style="font-size:11px;color:#888;margin-bottom:12px">
+        Você receberá uma notificação e poderá renovar com um clique.<br>
+        Ex: mestrado (30 dias) → use 20. Graduação (15 dias) → use 10.
+      </p>
+      <button class="btn-primary" id="btn-agendar">📅 Ativar agendamento</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Histórico -->
+<div class="panel" id="panel-historico">
+  <div class="section">
+    <ul class="history-list" id="history-list">
+      <li class="empty-msg">Nenhuma renovação registrada ainda.</li>
+    </ul>
+  </div>
+</div>
+
+<footer>Projeto independente e não oficial. Não possui vínculo com a Universidade Federal de Santa Catarina ou Pergamum.</footer>
+<script src="popup.js"></script>
+</body>
+</html>
