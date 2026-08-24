@@ -1,3 +1,5 @@
+![Capa do projeto](images/arte_renova_bu.png)
+
 # 📚 Renovação de livros BU
 
 Extensão de navegador que renova automaticamente todos os livros emprestados na Biblioteca Universitária da UFSC por meio do sistema Pergamum.
