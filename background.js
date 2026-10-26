@@ -13,6 +13,9 @@ const LOGIN_URL     = `${BASE_URL}/login?redirect=/meupergamum`;
 const RENOVACAO_URL = `${BASE_URL}/meupergamum/renovacao`;
 const ALARM_NAME    = 'bu-renovacao-alarm';
 const DEFAULT_DAYS  = 10;
+const MSG_ACESSO_BLOQUEADO =
+  'Acesso ao Pergamum bloqueado (erro 403). A UFSC restringiu temporariamente o acesso ' +
+  'à rede da UFSC. Conecte-se à VPN UFSC e tente novamente.';
 
 // ── Boot: restaura alarme ao reiniciar o service worker ───────
 chrome.runtime.onStartup.addListener(restoreAlarmIfNeeded);
@@ -148,6 +151,9 @@ async function addToHistory(entry) {
 
 // ── Orquestrador principal ────────────────────────────────────
 async function runRenovacao(username, password) {
+  notifyPopup('Verificando acesso ao Pergamum…');
+  await checkAcessoPergamum();
+
   notifyPopup('Abrindo sistema da biblioteca…');
   const tab = await getOrCreateTab();
 
@@ -199,6 +205,17 @@ async function runRenovacao(username, password) {
   return { success: true, message: renovResult.message };
 }
 
+// Desde 22/10/2026 a UFSC bloqueia (HTTP 403) o Pergamum fora da rede da UFSC/VPN
+async function checkAcessoPergamum() {
+  let res;
+  try {
+    res = await fetch(LOGIN_URL, { cache: 'no-store' });
+  } catch (e) {
+    throw new Error('Não foi possível conectar ao Pergamum. Verifique sua conexão com a internet.');
+  }
+  if (res.status === 403) throw new Error(MSG_ACESSO_BLOQUEADO);
+}
+
 // ── Funções injetadas nas abas ─────────────────────────────────
 
 function closeResultModal() {
@@ -220,6 +237,9 @@ function doLogin(username, password) {
     const userInput = document.getElementById('username');
     const passInput = document.getElementById('password');
     if (!userInput || !passInput) {
+      if (document.title.includes('403')) {
+        return { ok: false, error: 'Acesso ao Pergamum bloqueado (erro 403). Conecte-se à VPN UFSC e tente novamente.' };
+      }
       return { ok: false, error: `Campos de login não encontrados (URL: ${location.href}). Tente novamente.` };
     }
     function setNativeValue(el, value) {

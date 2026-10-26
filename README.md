@@ -122,6 +122,8 @@ Script auxiliar executado nas páginas do Pergamum.
 
 - O Pergamum precisa estar acessível no momento da renovação.
   
+- **Desde 22/10/2026, a UFSC restringiu temporariamente o acesso ao Pergamum à rede da UFSC** ([aviso da BU](https://portal.bu.ufsc.br/restricao-temporaria-no-acesso-ao-pergamum-fora-da-rede-da-ufsc/)). Fora dos campi, conecte-se à **VPN UFSC** antes de usar a extensão; caso contrário, o Pergamum responde com erro **403 Forbidden**.
+  
 - Livros que não estiverem disponíveis para renovação não poderão ser renovados pela extensão.
   
 - Alterações futuras na interface ou no funcionamento do Pergamum podem exigir atualizações na extensão.
